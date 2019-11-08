@@ -159,7 +159,6 @@ def drawGraph(objectList, boxList, parent, warehouseSize):
         rect.color = (random.randint(50, 200),random.randint(50, 200),random.randint(50, 200))
         objectList.append(rect)
 
-
 def removeMenu(objectList, layer=-1):
     if layer == -1:
         lastLayer = objectList[-1].layer

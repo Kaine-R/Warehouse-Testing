@@ -3,8 +3,8 @@ import string
 from settings import Settings
 import createMenu
 import gameFunction as gf
-import graphic
-import graphicResize as gr
+import graphic              # These can be deleted, Kept here to see if static testing notices it.
+import graphicResize as gr  # These can be deleted, Kept here to see if static testing notices it.
 
 def runWarehouse():
     pygame.init()
@@ -12,20 +12,13 @@ def runWarehouse():
     settings = Settings()
     screen = pygame.display.set_mode((settings.screenWidth, settings.screenHeight))
     pygame.display.set_caption("Warehouse Game")
-    lastAction = ["menu"]
 
     warehouse = [5, 5, 5] # Testing, size is always 5, 5, 5
+    boxList = [] # List to hold boxes put inside warehouse
+    backOrder = [] # List to hold boxes that don't fit in warehouse
+    objectList = [] # Object that need to be printed to screen
 
-    boxList = []
-    backOrder = []
-    #print("Please enter Dimentions for Warehouse. ")
-    #warehouse = askSize("Warehouse")
-
-    # for i in range(5):
-    #     temp = ["box" + str(i), "comment", [i, i, i]]
-    #     boxList.append(temp)
-
-    objectList = []
+    lastAction = ["menu"] # Allows for
     createMenu.createBG(settings, objectList)
     createMenu.createMainMenu(settings, objectList)
 
@@ -39,11 +32,6 @@ def runWarehouse():
         gf.checkEvents(objectList, boxList, backOrder, warehouse, lastAction)
 
         pygame.display.flip()
-
-
-
-
-
 
 
 def menu(boxList):

@@ -6,7 +6,7 @@ class item:
         self.layer = layer
         self.text = False
         self.border = 0
-        self.color = settings.GRAY3
+        self.color = settings.GRAY4
         self.action = ""
         self.rect = pygame.Rect((0, 0), (50, 50))
         if msg != "":
@@ -19,7 +19,7 @@ class item:
         self.focus = False
         self.text = True
         self.msg = msg
-        self.font = pygame.font.SysFont(None, 40, False, False)
+        self.font = pygame.font.SysFont(None, 20, False, False)
         self.image = self.font.render(msg, True, self.settings.BLACK)
         self.rect = self.image.get_rect()
 

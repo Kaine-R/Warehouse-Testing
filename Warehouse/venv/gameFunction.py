@@ -19,12 +19,12 @@ def checkClicks(objectList, boxList, backOrder, warehouse, mousePos, lastAction)
     for object in objectList:
         if pygame.Rect.collidepoint(object.rect, mousePos[0], mousePos[1]):
             if object.action == "add":
-                createMenu.removeMenu(objectList, getLastLayer(objectList))
+                createMenu.removeMenu(objectList, createMenu.getLastLayer(objectList))
                 createMenu.addBox(objectList[0].settings, objectList, boxList)
                 lastAction.clear()
                 lastAction.append("addBox")
             elif object.action == "remove":
-                createMenu.removeMenu(objectList, getLastLayer(objectList))
+                createMenu.removeMenu(objectList, createMenu.getLastLayer(objectList))
                 createMenu.removeBox(objectList, boxList)
                 lastAction.clear()
                 lastAction.append("removeBox")
@@ -49,13 +49,13 @@ def checkClicks(objectList, boxList, backOrder, warehouse, mousePos, lastAction)
             elif object.action == "yes":
                 print("yes")
             elif object.action == "back":
-                if getLastLayer(objectList) > 0:
+                if createMenu.getLastLayer(objectList) > 0:
                     createMenu.removeMenu(objectList)
-                    if getLastLayer(objectList) == 1:
+                    if creteMenu.getLastLayer(objectList) == 1:
                         createMenu.createMainMenu(objectList[0].settings, objectList)
 
 def pickAction(lastAction, objectList, boxList, backOrder, warehouse):
-    lastLayer = getLastLayer(objectList)
+    lastLayer = createMenu.getLastLayer(objectList)
     boxInfo = []
     isGood = True
     if lastAction[0] == "addBox":
@@ -135,7 +135,7 @@ def checkText(text, objectList, allowedBlank=False, intOnly=False, charLimit=10)
     isGood = True
     if not allowedBlank:
         if text == "":
-            isGood == False
+            isGood = False
             createMenu.createWarning(objectList, "Can't be blank.")
     if isGood and intOnly:
         if not text.isdigit():
@@ -166,11 +166,4 @@ def checkNumPad(event):
     if str(pygame.key.name(event.key))[0:1] == "[":
         return True
     else:
-        False
-
-def getLastLayer(objectList):
-    for object in objectList:
-        temp = 1
-        if object.layer > temp and object.layer != 9:
-            temp = object.layer
-        return temp
+        return False
