@@ -13,38 +13,35 @@ def runWarehouse():
     screen = pygame.display.set_mode((settings.screenWidth, settings.screenHeight))
     pygame.display.set_caption("Warehouse Game")
     lastAction = ["menu"]
+    lastGraph = ["list"]
+    pageNum = [0]
 
     warehouse = [5, 5, 5] # Testing, size is always 5, 5, 5
 
     boxList = []
     backOrder = []
-    #print("Please enter Dimentions for Warehouse. ")
-    #warehouse = askSize("Warehouse")
-
-    # for i in range(5):
-    #     temp = ["box" + str(i), "comment", [i, i, i]]
-    #     boxList.append(temp)
-
     objectList = []
+
     createMenu.createBG(settings, objectList)
     createMenu.createMainMenu(settings, objectList)
+    createMenu.getList(objectList, boxList, pageNum)
+    img = pygame.image.load("warehouseLogo.png")
+
 
     repeat = True
     while repeat == True:
-        screen.fill((250,250,250))
+        screen.fill((0, 0, 0))
 
+        i = 0
         for object in objectList:
+            i = object.layer if object.layer > i else i
             object.draw(screen)
+        if i == 2:
+            screen.blit(img, (460, 250))
 
-        gf.checkEvents(objectList, boxList, backOrder, warehouse, lastAction)
+        gf.checkEvents(objectList, boxList, backOrder, warehouse, lastAction, lastGraph, pageNum)
 
         pygame.display.flip()
-
-
-
-
-
-
 
 def menu(boxList):
     print("Welcome the warehouse menu!")
@@ -100,7 +97,6 @@ def askSize(object):
     print("Enter Height of " + object + ": ", end="")
     group.append(checkInt())
     return group
-
 
 def checkInt(min=0, max=999):
     try:

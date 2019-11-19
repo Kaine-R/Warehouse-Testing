@@ -2,57 +2,95 @@ import sys
 import pygame
 import createMenu
 
-def checkEvents(objectList, boxList, backOrder, warehouse, lastAction):
+def checkEvents(objectList, boxList, backOrder, warehouse, lastAction, lastGraph, pageNum):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             createMenu.removeMenu(objectList, 9)
-            checkClicks(objectList, boxList, backOrder, warehouse, pygame.mouse.get_pos(), lastAction)
+            checkClicks(objectList, boxList, backOrder, warehouse, pygame.mouse.get_pos(), lastAction, lastGraph, pageNum)
         elif event.type == pygame.KEYDOWN:
             createMenu.removeMenu(objectList, 9)
             addChar(objectList, event)
-        elif event.type == pygame.KEYUP:
-            pass
 
-def checkClicks(objectList, boxList, backOrder, warehouse, mousePos, lastAction):
+def checkClicks(objectList, boxList, backOrder, warehouse, mousePos, lastAction, lastGraph, pageNum):
     for object in objectList:
         if pygame.Rect.collidepoint(object.rect, mousePos[0], mousePos[1]):
             if object.action == "add":
                 createMenu.removeMenu(objectList, getLastLayer(objectList))
                 createMenu.addBox(objectList[0].settings, objectList, boxList)
-                lastAction.clear()
-                lastAction.append("addBox")
+                if lastGraph[0] == "list":
+                    createMenu.removeMenu(objectList, 1)
+                    createMenu.getList(objectList, boxList, pageNum)
+                elif lastGraph[0] == "graph":
+                    createMenu.removeMenu(objectList, 1)
+                    createMenu.getGraph(objectList, boxList, warehouse)
+                else:
+                    createMenu.removeMenu(objectList, 1)
+                    createMenu.getList(objectList, backOrder, pageNum)
+                lastAction[0]="addBox"
             elif object.action == "remove":
                 createMenu.removeMenu(objectList, getLastLayer(objectList))
                 createMenu.removeBox(objectList, boxList)
-                lastAction.clear()
-                lastAction.append("removeBox")
+                lastAction[0]="removeBox"
             elif object.action == "button":
                 pickAction(lastAction, objectList, boxList, backOrder, warehouse)
+                if lastGraph[0] == "list":
+                    createMenu.removeMenu(objectList, 1)
+                    createMenu.getList(objectList, boxList, pageNum)
+                elif lastGraph[0] == "graph":
+                    createMenu.removeMenu(objectList, 1)
+                    createMenu.getGraph(objectList, boxList, warehouse)
+                else:
+                    createMenu.removeMenu(objectList, 1)
+                    createMenu.getList(objectList, backOrder, pageNum)
             elif object.action == "list":
-                createMenu.removeMenu(objectList, 2)
-                createMenu.getList(objectList, boxList)
+                lastGraph[0] = "list"
+                pageNum[0] = 0
+                createMenu.removeMenu(objectList, 1)
+                createMenu.getList(objectList, boxList, pageNum)
             elif object.action == "graph":
-                createMenu.removeMenu(objectList, 2)
-                createMenu.getGraph(objectList, boxList,warehouse)
+                lastGraph[0] = "graph"
+                createMenu.removeMenu(objectList, 1)
+                createMenu.getGraph(objectList, boxList, warehouse)
             elif object.action == "backOrder":
-                createMenu.removeMenu(objectList, 2)
-                createMenu.getList(objectList, backOrder)
+                lastGraph[0] = "back"
+                pageNum[0] = 0
+                createMenu.removeMenu(objectList, 1)
+                createMenu.getList(objectList, backOrder, pageNum)
             elif object.action == "option":
-                lastAction.clear()
-                lastAction.append("option")
+                lastAction[0]="option"
             elif object.action == "input":
                 for item in objectList:
                     item.focus = False
                 object.focus = True
             elif object.action == "yes":
                 print("yes")
+            elif object.action == "pageUp":
+                if lastGraph[0] == "list":
+                    if (pageNum[0] + 1) * 8 < len(boxList):
+                        pageNum[0] += 1
+                    createMenu.removeMenu(objectList, 1)
+                    createMenu.getList(objectList, boxList, pageNum)
+                else:
+                    if (pageNum[0] + 1) * 8 < len(backOrder):
+                        pageNum[0] += 1
+                    createMenu.removeMenu(objectList, 1)
+                    createMenu.getList(objectList, backOrder, pageNum)
+            elif object.action == "pageDown":
+                if pageNum[0] >= 1:
+                    pageNum[0] -= 1
+                if lastGraph[0] == "list":
+                    createMenu.removeMenu(objectList, 1)
+                    createMenu.getList(objectList, boxList, pageNum)
+                else:
+                    createMenu.removeMenu(objectList, 1)
+                    createMenu.getList(objectList, backOrder, pageNum)
             elif object.action == "back":
-                if getLastLayer(objectList) > 0:
-                    createMenu.removeMenu(objectList)
-                    if getLastLayer(objectList) == 1:
-                        createMenu.createMainMenu(objectList[0].settings, objectList)
+                if object.layer > 1:
+                    createMenu.removeMenu(objectList, object.layer)
+                if getLastLayer(objectList) == 2:
+                    createMenu.createMainMenu(objectList[0].settings, objectList)
 
 def pickAction(lastAction, objectList, boxList, backOrder, warehouse):
     lastLayer = getLastLayer(objectList)
@@ -78,7 +116,15 @@ def pickAction(lastAction, objectList, boxList, backOrder, warehouse):
             if checkBoxInWarehouse(warehouse, boxInfo, backOrder):
                 searchForRoom(warehouse, boxList, boxInfo)
             else:
+                boxInfo.append([0, 0, 0])
                 backOrder.append(boxInfo)
+    elif lastAction[0] == "removeBox":
+        for item in reversed(objectList):
+            if item.layer == lastLayer and item.action == "input":
+                if checkText(item.msg, objectList, False, True, 10, len(boxList)-1):
+                    print("Removed box #" + str(int(item.msg)-1))
+                    if int(item.msg)-1 < len(boxList):
+                        boxList.pop(int(item.msg)-1)
 
 def checkBoxInWarehouse(warehouse, boxInfo, backOrder):
     for boxSize in boxInfo[2]:
@@ -88,16 +134,15 @@ def checkBoxInWarehouse(warehouse, boxInfo, backOrder):
     return True
 
 def searchForRoom(warehouse, boxList, boxInfo):
-    stay = True
     if len(boxList) == 0:
         boxList.append(boxInfo)
         boxInfo.append([0, 0, 0])
         print("Adding First Box")
         print("***********************")
     else:
-        oldSpot = [0,0,0]
-        newSpot = [0,0,0]
-        while newSpot[2] < warehouse[2] - boxInfo[2][2] and stay:
+        oldSpot = [0, 0, 0]
+        newSpot = [0, 0, 0]
+        while newSpot[2] < warehouse[2] - boxInfo[2][2]:
             for box in boxList:
                 temp = hitBox(box, newSpot)
                 newSpot[0] += temp
@@ -105,12 +150,10 @@ def searchForRoom(warehouse, boxList, boxInfo):
                     print("Move to next Length")
                     newSpot[1] += 1
                     newSpot[0] = 0
-                    break
                 if newSpot[1] > warehouse[1] - boxInfo[2][1]:
                     print("Move to next Height")
                     newSpot[2] += 1
                     newSpot[0], newSpot[1] = 0, 0
-                    break
             if newSpot == oldSpot:
                 boxInfo.append(oldSpot)
                 boxList.append(boxInfo)
@@ -131,24 +174,31 @@ def hitBox(box1, spot):
                     return box1[2][0]
     return 0
 
-def checkText(text, objectList, allowedBlank=False, intOnly=False, charLimit=10):
+def checkText(text, objectList, allowedBlank=False, intOnly=False, charLimit=10, numMax=9999, numMin=0):
     isGood = True
     if not allowedBlank:
         if text == "":
-            isGood == False
+            isGood = False
             createMenu.createWarning(objectList, "Can't be blank.")
     if isGood and intOnly:
         if not text.isdigit():
             isGood = False
             createMenu.createWarning(objectList, "Only enter Integers")
+        elif int(text)-1 > numMax:
+            isGood = False
+            createMenu.createWarning(objectList, "Integer is too large")
+        elif int(text)-1 < numMin:
+            isGood = False
+            createMenu.createWarning(objectList, "Integer is too small")
     if isGood and len(text) > charLimit:
         isGood = False
         createMenu.createWarning(objectList, "Over char limit of \"" + str(charLimit) + "\"")
+
     return isGood
 
 def addChar(objectList, event):
     for object in objectList:
-        if object.focus:
+        if object.text and object.focus:
             if event.key == pygame.K_BACKSPACE:
                 if len(object.msg) > 1:
                     object.msg = object.msg[0:-1]
@@ -162,6 +212,8 @@ def addChar(objectList, event):
             else:
                 object.msg += str(pygame.key.name(event.key))[0:1]
 
+            #could add some info to the text item and allow for error to pop up during tyoing instead of on done click
+
 def checkNumPad(event):
     if str(pygame.key.name(event.key))[0:1] == "[":
         return True
@@ -169,8 +221,8 @@ def checkNumPad(event):
         False
 
 def getLastLayer(objectList):
+    temp = 2
     for object in objectList:
-        temp = 1
         if object.layer > temp and object.layer != 9:
             temp = object.layer
-        return temp
+    return temp
