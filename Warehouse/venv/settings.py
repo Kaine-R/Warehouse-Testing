@@ -3,7 +3,7 @@ class Settings():
         self.screenWidth = 800
         self.screenHeight = 550
 
-        self.BLACK = (0, 0 ,0)
+        self.BLACK = (0, 0, 0)
         self.RED = (250, 50, 50)
         self.GREEN = (50, 250, 50)
         self.BLUE = (50, 50, 250)
