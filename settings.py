@@ -1,4 +1,8 @@
+"""Base colors and default screen size"""
+
+
 class Settings():
+    """Base colors and default screen size"""
     def __init__(self):
         self.screenWidth = 800
         self.screenHeight = 550
