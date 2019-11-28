@@ -8,26 +8,26 @@ import graphicResize as gr
 
 def createBG(settings, objectList):
     """Create background layout (only called once)"""
-    leftBox = graphic.item(settings, 0)
+    leftBox = graphic.Basic(settings, 0)
     leftBox.setPos(0, 0)
     leftBox.setSize(settings.screenWidth/2-2, settings.screenHeight)
     leftBox.color = settings.BGGRAY
-    rightBox = graphic.item(settings, 0)
+    rightBox = graphic.Basic(settings, 0)
     rightBox.setPos(leftBox.rect.right +4, leftBox.rect.y+58)
     rightBox.setSize(settings.screenWidth/2-2, settings.screenHeight-58)
     rightBox.color = settings.GRAY3
-    hotBar = graphic.placeholder()
+    hotBar = graphic.Basic(settings, 9)
     hotBar.setPos(leftBox.rect.right, 0)
 
-    backBtn = graphic.item(settings, 0, "Back Log", True)
+    backBtn = graphic.Text(settings, 0, "Back Log")
     backBtn.color = settings.GRAY4
-    backBtn.action = "backOrder"
-    listBtn = graphic.item(settings, 0, "List", True)
+    backBtn.type = "backOrder"
+    listBtn = graphic.Text(settings, 0, "List")
     listBtn.color = settings.GRAY2
-    listBtn.action = "list"
-    graphBtn = graphic.item(settings, 0, "Graph", True)
+    listBtn.type = "list"
+    graphBtn = graphic.Text(settings, 0, "Graph")
     graphBtn.color = settings.GRAY3
-    graphBtn.action = "graph"
+    graphBtn.type = "graph"
     objectList.extend([leftBox, rightBox])
 
     listBtn.setSize(133, 55)
@@ -38,14 +38,15 @@ def createBG(settings, objectList):
 
 def createMainMenu(settings, objectList):
     """Create add/remove box buttons"""
-    addBox = graphic.item(settings, 2, "Add Box", True)
-    addBox.action = "add"
-    removeBox = graphic.item(settings, 2, "Remove Box", True)
-    removeBox.action = "remove"
+    addBox = graphic.Text(settings, 2, "Add Box", True)
+    addBox.type = "add"
+    removeBox = graphic.Text(settings, 2, "Remove Box", True)
+    removeBox.type = "remove"
     # options = graphic.item(settings, 2, "Options", True)
-    # options.action = "option"
+    # options.type = "option"
 
-    placeholder = graphic.placeholder(objectList[1].rect.copy())
+    placeholder = graphic.Basic(settings, 9)
+    placeholder.rect = objectList[1].rect.copy()
     placeholder.nudge(60, 70)
     addBox.rect.width += 200
     gr.easyListV(placeholder.getPos(), [addBox, removeBox], objectList)
@@ -54,21 +55,21 @@ def createMainMenu(settings, objectList):
 def addBox(settings, objectList):
     """Creates menu for box input (includes getSize)"""
     lastLayer = getLastLayer(objectList)+1
-    name = graphic.item(settings, lastLayer, "Name")
-    inputName = graphic.item(settings, lastLayer, "    ", True)
-    inputName.action = "input"
+    name = graphic.Text(settings, lastLayer, "Name")
+    inputName = graphic.Text(settings, lastLayer, "    ", True)
+    inputName.createInput()
     inputName.textPadding(0, -10)
-    comment = graphic.item(settings, lastLayer, "Comments")
-    inputComment = graphic.item(settings, lastLayer, "    ", True)
+    comment = graphic.Text(settings, lastLayer, "Comments")
+    inputComment = graphic.Text(settings, lastLayer, "    ", True)
     inputComment.textPadding(0, -10)
-    inputComment.action = "input"
-    inputName.color, inputComment.color = settings.GREEN, settings.GREEN
+    inputComment.createInput()
 
-    placeholder = graphic.placeholder(objectList[1].rect.copy())
+    placeholder = graphic.Basic(settings, 9)
+    placeholder.rect = objectList[1].rect.copy()
     placeholder.nudge(30, 30)
     gr.easyListV(placeholder.getPos(), [name, inputName, comment, inputComment], objectList, -15)
 
-    placement = graphic.item(settings, lastLayer)
+    placement = graphic.Basic(settings, lastLayer)
     gr.setDown(inputComment, placement)
     placement.rect.y += 50
     placement.rect.x += 50
@@ -77,20 +78,17 @@ def addBox(settings, objectList):
 
 def getSize(settings, objectList, parent, layer):
     """Get Width, Length, Height input boxes"""
-    width = graphic.item(settings, layer, "Width")
-    inputWidth = graphic.item(settings, layer, "0", True)
-    inputWidth.color = settings.GREEN
-    inputWidth.action = "input"
+    width = graphic.Text(settings, layer, "Width")
+    inputWidth = graphic.Text(settings, layer, "0", True)
+    inputWidth.createInput()
 
-    length = graphic.item(settings, layer, "Length")
-    inputLength = graphic.item(settings, layer, "0", True)
-    inputLength.color = settings.GREEN
-    inputLength.action = "input"
+    length = graphic.Text(settings, layer, "Length")
+    inputLength = graphic.Text(settings, layer, "0", True)
+    inputLength.createInput()
 
-    height = graphic.item(settings, layer, "Height")
-    inputHeight = graphic.item(settings, layer, "0", True)
-    inputHeight.color = settings.GREEN
-    inputHeight.action = "input"
+    height = graphic.Text(settings, layer, "Height")
+    inputHeight = graphic.Text(settings, layer, "0", True)
+    inputHeight.createInput()
 
     gr.easyListV(parent.getPos(), [width, length, height], objectList)
     gr.setRight(width, inputWidth)
@@ -103,13 +101,12 @@ def getSize(settings, objectList, parent, layer):
 
 def removeBox(objectList):
     """Create menu to remove box"""
-    prompt = graphic.item(objectList[0].settings, getLastLayer(objectList)+1, "Enter Box's ID to remove.")
+    prompt = graphic.Text(objectList[0].settings, getLastLayer(objectList)+1, "Enter Box's ID to remove.")
     gr.center(objectList[1], prompt)
     prompt.rect.x -= 20
     prompt.rect.y -= 150
-    uInput = graphic.item(objectList[0].settings, getLastLayer(objectList)+1, "0", True)
-    uInput.action = "input"
-    uInput.color = objectList[0].settings.GREEN
+    uInput = graphic.Text(objectList[0].settings, getLastLayer(objectList)+1, "0", True)
+    uInput.createInput()
     gr.setDown(prompt, uInput)
 
     backBtn(objectList, getLastLayer(objectList)+1)
@@ -129,13 +126,13 @@ def getList(objectList, boxList, pageNum): #creating and placing boxes in list
         if (pageNum[0]+1)*8 < lenBoxList:
             lenBoxList = (pageNum[0]+1)*8
         while i < (lenBoxList):
-            tempBox = graphic.item(objectList[0].settings, 1)
+            tempBox = graphic.Basic(objectList[0].settings, 1)
             gr.setLeft(objectList[0], tempBox, True, 100, 10)
-            tempBoxName = graphic.item(objectList[0].settings, 1, "#"+str(i+1)+"  "+str(boxList[i][0]))
+            tempBoxName = graphic.Text(objectList[0].settings, 1, "#"+str(i+1)+"  "+str(boxList[i][0]))
             tempBoxName.center = False
-            tempBoxSize = graphic.item(objectList[0].settings, 1, "Size: "+str(boxList[i][2])+"  Pos:"+str(boxList[i][3]))
+            tempBoxSize = graphic.Text(objectList[0].settings, 1, "Size: "+str(boxList[i][2])+"  Pos:"+str(boxList[i][3]))
             tempBoxSize.center = False
-            tempBoxCom = graphic.item(objectList[0].settings, 1, "Comments:  "+str(boxList[i][1]))
+            tempBoxCom = graphic.Text(objectList[0].settings, 1, "Comments:  "+str(boxList[i][1]))
             tempBoxCom.center = False
             tempBoxes.append(tempBox)
             tempBoxNames.append(tempBoxName)
@@ -148,22 +145,22 @@ def getList(objectList, boxList, pageNum): #creating and placing boxes in list
         gr.easyListV((SS[0]-5, SS[1]+10), tempBoxComments, objectList, 10)
         gr.easyListV((SS[0]+180, SS[1]-15), tempBoxSizes, objectList, 10)
 
-        tempBackG = graphic.item(objectList[0].settings, 1, "", True)
+        tempBackG = graphic.Text(objectList[0].settings, 1, "", True)
         gr.setLeft(objectList[0], tempBackG, True, 100, 15)
         tempBackG.color = objectList[0].settings.GRAY3
         tempBackG.rect.y += 470
-        tempLess = graphic.item(objectList[0].settings, 1, "  <  ", True)
+        tempLess = graphic.Text(objectList[0].settings, 1, "  <  ", True)
         tempLess.color = objectList[0].settings.GRAY5
-        tempLess.action = "pageDown"
-        tempPage = graphic.item(objectList[0].settings, 1, str(pageNum), True)
+        tempLess.type = "pageDown"
+        tempPage = graphic.Text(objectList[0].settings, 1, str(pageNum), True)
         tempPage.color = objectList[0].settings.GRAY5
-        tempGreat = graphic.item(objectList[0].settings, 1, "  >  ", True)
+        tempGreat = graphic.Text(objectList[0].settings, 1, "  >  ", True)
         tempGreat.color = objectList[0].settings.GRAY5
-        tempGreat.action = "pageUp"
+        tempGreat.type = "pageUp"
         objectList.append(tempBackG)
         gr.easyListH((tempBackG.rect.x+90, tempBackG.rect.y+20), [tempLess, tempPage, tempGreat], objectList, 15)
     else:
-        temp = graphic.item(objectList[0].settings, 1, "Nothing in List.", True)
+        temp = graphic.Text(objectList[0].settings, 1, "Nothing in List.", True)
         temp.color = temp.settings.RED
         gr.setLeft(objectList[0], temp, True, 100, 10)
         objectList.append(temp)
@@ -174,10 +171,10 @@ def getGraph(objectList, boxList, warehouseSize):
     warehouseCords.append((warehouseCords[0][0]-170, warehouseCords[0][1]+50))
     warehouseCords.append((warehouseCords[1][0]+170, warehouseCords[1][1]+50))
     warehouseCords.append((warehouseCords[2][0]+170, warehouseCords[2][1]-50))
-    warehouse = graphic.item(objectList[0].settings, 1)
+    warehouse = graphic.Polygon(objectList[0].settings, 1)
     warehouse.border = -1
     warehouse.color = warehouse.settings.RED
-    warehouse.addPolygon(warehouseCords)
+    warehouse.polyCords = warehouseCords
     print(warehouseCords)
     objectList.append(warehouse)
     drawGraph(objectList, boxList, (170, 170, 400), warehouseSize)
@@ -193,7 +190,7 @@ def drawGraph(objectList, boxList, parent, warehouseSize):
     while boxCount >= 0:
         print(i)
         box = boxList[i]
-        rect = graphic.item(objectList[0].settings, 1)
+        rect = graphic.Polygon(objectList[0].settings, 1)
         rectCords = []
         rectCords.append((200-(box[3][0]*warehouseRes[0])+(box[3][1]*warehouseRes[1]), 450-(box[3][0]*10)-(box[3][1]*10)-(box[3][2]*50))) #point0
         temp = getBasePoint(warehouseRes, [box[2][0]])
@@ -208,7 +205,7 @@ def drawGraph(objectList, boxList, parent, warehouseSize):
         rectCords.append((rectCords[4][0], rectCords[4][1]+temp[1])) #point5
 
         rect.color = setRandColor()
-        rect.addPolygon(rectCords)
+        rect.polyCords = rectCords
         objectList.append(rect)
 
         if i%boxesPerLvl <= 0:
@@ -234,29 +231,25 @@ def setRandColor():
 
 def removeMenu(objectList, layer=-1):
     """Removes a menu layer to clear space for next menu"""
-    if layer == -1:
-        lastLayer = getLastLayer(objectList)
-        if lastLayer > 1:
-            for i in reversed(range(len(objectList))):
-                if objectList[i].layer == lastLayer:
-                    objectList.pop(i)
-    else:
+    lastLayer = layer if layer != -1 else getLastLayer(objectList)
+    if lastLayer > 0:
         for i in reversed(range(len(objectList))):
-            if objectList[i].layer == layer:
+            if objectList[i].layer == lastLayer:
                 objectList.pop(i)
+
 
 def confirm(objectList): # Currently unused --------------------------------
     """Confirm dialog, not currently used"""
-    border = graphic.item(objectList[0].settings, 9)
+    border = graphic.Basic(objectList[0].settings, 9)
     border.border, border.color = 3, objectList[0].settings.BLACK
     border.setSize(300+border.border, 200+border.border)
-    bg = graphic.item(objectList[0].settings, 9)
+    bg = graphic.Basic(objectList[0].settings, 9)
     bg.setSize(300, 200)
-    text = graphic.item(objectList[0].settings, 9, "Are you Sure?")
-    yes = graphic.item(objectList[0].settings, 9, "Yes")
-    yes.action = "yes"
-    no = graphic.item(objectList[0].settings, 9, "No")
-    no.action = "back"
+    text = graphic.Text(objectList[0].settings, 9, "Are you Sure?")
+    yes = graphic.Text(objectList[0].settings, 9, "Yes")
+    yes.type = "yes"
+    no = graphic.Text(objectList[0].settings, 9, "No")
+    no.type = "back"
 
     gr.center(objectList[0], border)
     gr.center(objectList[0], bg)
@@ -271,19 +264,19 @@ def confirm(objectList): # Currently unused --------------------------------
 
 def doneBtn(parent, layer=3):
     """Done Btn to progress user input"""
-    done = graphic.item(parent.settings, layer, "Done", True)
+    done = graphic.Text(parent.settings, layer, "Done", True)
     done.color = parent.settings.GRAY2
     gr.setDown(parent, done)
     gr.centerHor(parent, done)
     done.rect.y += 25
-    done.action = "button"
+    done.type = "button"
     return done
 
 def backBtn(objectList, lastLayer):
     """Back btn to return to previous layer"""
-    back = graphic.item(objectList[0].settings, lastLayer, "Back", True)
+    back = graphic.Text(objectList[0].settings, lastLayer, "Back")
     back.color = objectList[0].settings.RED
-    back.action = "back"
+    back.type = "back"
     gr.setDown(objectList[4], back, False)
     back.nudge(0, 5, 80, -10)
 
@@ -291,15 +284,15 @@ def backBtn(objectList, lastLayer):
 
 def createWarning(objectList, msg):
     """Create red text warning that disappears on any key press"""
-    warning = graphic.item(objectList[0].settings, 9, "Warning: " + msg, True)
-    warning.resetFontSize(20)
+    warning = graphic.Text(objectList[0].settings, 9, "Warning: " + msg, True)
+    warning.changeTextSize(17)
     warning.textPadding(0, -10)
-    warning.prep(msg)
+    warning.text = msg
     warning.color = warning.settings.RED
     if objectList[-1].layer == 9:
         gr.setDown(objectList[-1], warning)
     else:
-        warningList = graphic.item(warning.settings, 9, "Error List:", True)
+        warningList = graphic.Text(warning.settings, 9, "Error List:", True)
         warningList.color = warning.settings.RED
         gr.setDown(objectList[2], warningList)
         gr.setDown(warningList, warning)
