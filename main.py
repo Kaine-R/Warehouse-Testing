@@ -25,35 +25,6 @@ def runWarehouse():
     backOrder = []
     objectList = []
 
-    sss = 0
-    # testBase = graphic.Basic(settings, 20)
-    # testBase.nudge(50, 10)
-    # testText = graphic.Text(settings, 20, "Test String", True)
-    # testText.textPadding(8, 6)
-    # testText.nudge(50, 100)
-    # testPoly = graphic.Polygon(settings, 20)
-    # testPoly.polyCords = [(50, 150), (70, 170), (50, 190), (50, 170)]
-    # testHolder = graphic.Holder(settings, 20)
-    # testHolder.addItems([testBase, testText, testPoly])
-
-    # b = graphic.Basic(settings, 20)
-    # b.nudge(50, 75, 240, 100)
-    # bname = graphic.Text(settings, 20, "Name", True)
-    # # bname.nudge(50, 75)
-    # gr.setLeft(b, bname)
-    # bpos = graphic.Text(settings, 20, "Pos")
-    # bpos.alignment = "right"
-    # gr.setRight(b, bpos)
-    # bcomment = graphic.Text(settings, 20, "Comment")
-    # bcomment.alignemnt = "center"
-    # bcomment.changeTextSize(10)
-    # gr.setDown(b, bcomment)
-    # testHolder = graphic.Holder(settings, 20)
-    # testHolder.addItems([b, bname, bpos, bcomment])
-
-
-
-
     createMenu.createBG(settings, objectList)
     createMenu.createMainMenu(settings, objectList)
     createMenu.getList(objectList, boxList, pageNum)
@@ -69,7 +40,14 @@ def runWarehouse():
         #     testHolder.printList()
         # if sss%500 == 0 and sss > 0:
         #     bname.msg += str(sss%499)
-
+        # print("-----------")
+        # boxInfo = [0, 0, [2, 2, 2]]
+        # pos = [0, 0, 0]
+        # for h in range(pos[2], boxInfo[2][2] + pos[2]):
+        #     for l in range(pos[1], boxInfo[2][1] + pos[1]):
+        #         for w in range(pos[0], boxInfo[2][0] + pos[0]):
+        #             print(w, l, h)
+        # print("-----------")
         i = 0
         for item in objectList:
             i = item.layer if item.layer > i else i

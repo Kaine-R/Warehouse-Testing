@@ -1,27 +1,9 @@
 """Functions to move graphical boxes to desired areas"""
-def listHor(parent, box, num, outOf, size=1, resizeX=False, resizeY=False):
-    """Moves graphical boxes into a horizontal list"""
-    box.rect.x = parent.rect.x + ((parent.rect.width / outOf) * num)
-    box.rect.y = parent.rect.y
-    if resizeX:
-        box.rect.width = (parent.rect.width / outOf) * size
-    if resizeY:
-        box.rect.height = parent.rect.height
-
-
-def listVer(parent, box, num, outOf, size=1, resizeX=False, resizeY=False):
-    """Moves graphical boxes into a vertical list"""
-    box.rect.x = parent.rect.x
-    box.rect.y = parent.rect.y + ((parent.rect.width / outOf) * num)
-    if resizeX:
-        box.rect.width = parent.rect.height
-    if resizeY:
-        box.rect.height = (parent.rect.width / outOf) * size
 
 
 def easyListV(startPoint, group, objectList, padding=5):
     """Moves graphical boxes into a vertical list and put them in objectList"""
-    tempSpot = ""
+    tempSpot = [0, 0]
     for i in range(len(group)):
         if i == 0:
             group[0].rect.x, group[0].rect.y = startPoint[0], startPoint[1]
@@ -34,7 +16,7 @@ def easyListV(startPoint, group, objectList, padding=5):
 
 def easyListH(startPoint, group, objectList, padding=5):
     """Moves graphical boxes into a horizontal list and put them in objectList"""
-    tempSpot = ""
+    tempSpot = [0, 0]
     for i in range(len(group)):
         if i == 0:
             group[0].rect.x, group[0].rect.y = startPoint[0], startPoint[1]
@@ -53,36 +35,40 @@ def allSameSize(group):
         obj.rect.height = first.rect.height
 
 
-def setLeft(parent, box, resize=False, percentX=50, percentY=100):
-    """sets box to parent's x"""
+def setLeft(parent, box, outside=False, percentX=0, percentY=0):
+    """sets box to parent's x (within parent)"""
     box.rect.x = parent.rect.x
+    box.rect.x -= box.rect.width if outside else 0 # if outside True, move item left parent
     box.rect.y = parent.rect.y
-    if resize:
+    if percentX != 0 or percentY != 0:
         box.rect.width = (parent.rect.width * (percentX/100))
         box.rect.height = (parent.rect.height * (percentY/100))
 
 
-def setRight(parent, box, resize=False, percentX=50, percentY=100):
-    """sets box to parent's x + parent's width(parent's right most place"""
-    box.rect.x = parent.rect.x + (parent.rect.width * (percentX/100))
+def setRight(parent, box, outside=False, percentX=0, percentY=0):
+    """sets box to parent's x + parent's width(parent's right most place inside)"""
+    box.rect.x = parent.rect.x + parent.rect.width - box.rect.width
+    box.rect.x += box.rect.width if outside else 0  # if outside True, move item right of parent
     box.rect.y = parent.rect.y
-    if resize:
+    if percentX != 0 or percentY != 0:
         box.rect.width = (parent.rect.width * (percentX/100))
         box.rect.height = (parent.rect.height * (percentY/100))
 
-def setUp(parent, box, resize=False, percentX=100, percentY=50):
-    """sets box to parent's y"""
+def setUp(parent, box, outside=False, percentX=0, percentY=0):
+    """sets box to parent's y (inside parent)"""
     box.rect.x = parent.rect.x
     box.rect.y = parent.rect.y
-    if resize:
+    box.rect.y -= box.rect.height if outside else 0  # if outside True, move item above parent
+    if percentX != 0 or percentY != 0:
         box.rect.width = (parent.rect.width * (percentX / 100))
         box.rect.height = (parent.rect.height * (percentY / 100))
 
-def setDown(parent, box, resize=False, percentX=100, percentY=50):
-    """sets box to paren't y + parent's height"""
+def setDown(parent, box, outside=False, percentX=0, percentY=0):
+    """sets box to paren't y + parent's height (inside parent)"""
     box.rect.x = parent.rect.x
     box.rect.y = parent.rect.y + parent.rect.height
-    if resize:
+    box.rect.y += box.rect.height if outside else 0  # if outside True, move item below parent
+    if percentX != 0 or percentY != 0:
         box.rect.width = (parent.rect.width * (percentX / 100))
         box.rect.height = (parent.rect.height * (percentY / 100))
 
@@ -100,4 +86,3 @@ def center(parent, box):
     """centers both x and y for box of parent"""
     centerHor(parent, box)
     centerVer(parent, box)
-
